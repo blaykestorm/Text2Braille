@@ -2,6 +2,16 @@ import java.io.*;
 public class Text2Braille {
     private static String[] strChars;
     private static String[] strCodes;
+    private static int intChars;
+    private static int intBrailleChars;
+
+    public Text2Braille(String strInput) {
+        intChars = strInput.length();
+        Text2Braille.initialize();
+        
+
+    }
+
     public static void main(String[] args) {
         if (args.length == 0) {
             System.out.println("Please provide more arguments!");
@@ -21,7 +31,7 @@ public class Text2Braille {
         String[] output = new String[input.toCharArray().length];
         int intCount = 0;
         for (char c:input.toCharArray()) {
-            for (int count = 0; count < 63; count++) {
+            for (int count = 0; count < strChars.length; count++) {
                 if (String.valueOf(c).toUpperCase().equals(strChars[count])) {
                     output[intCount] = strCodes[count];
                     intCount++;
@@ -61,8 +71,8 @@ public class Text2Braille {
             strCodes = new String[intLines];
             int intCount = 0;
             while ((line = inputStream.readLine()) != null) {
-                strChars[intCount] = String.valueOf(line.charAt(0));
-                strCodes[intCount] = line.substring(2, 8);
+                strChars[intCount] = line.substring(0, line.indexOf(':', 1));
+                strCodes[intCount] = line.substring(line.indexOf(':', 1) + 1, line.indexOf(';', 1));
                 intCount++;
             }
         } catch (IOException x) {
