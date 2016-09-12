@@ -1,3 +1,4 @@
+package com.chickasaw.text2braille;
 public class Pair implements Comparable<Pair> {
     public final int index;
     public final int value;

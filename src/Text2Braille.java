@@ -1,3 +1,4 @@
+package com.chickasaw.text2braille;
 import java.io.*;
 import java.util.Arrays;
 public class Text2Braille {
