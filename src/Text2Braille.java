@@ -66,7 +66,7 @@ public class Text2Braille {
     public void initialize(String encoding) {
         String line = null;
         int intLines = 0;
-        try (BufferedReader inputStream = new BufferedReader(new FileReader("C:\\Users\\alexh\\Desktop\\" + encoding + ".txt"))) {
+        try (BufferedReader inputStream = new BufferedReader(new FileReader(encoding + ".txt"))) {
             while ((line = inputStream.readLine()) != null) {
                 intLines++;
             }
@@ -74,7 +74,7 @@ public class Text2Braille {
             System.out.println("SHIT!");
             System.exit(1);
         }
-        try (BufferedReader inputStream = new BufferedReader(new FileReader("C:\\Users\\alexh\\Desktop\\" + encoding + ".txt"))) {
+        try (BufferedReader inputStream = new BufferedReader(new FileReader(encoding + ".txt"))) {
             line = null;
             strChars = new String[intLines];
             strCodes = new String[intLines];
