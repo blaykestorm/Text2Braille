@@ -36,7 +36,7 @@ public class Text2Braille {
         }
     }
     public String[] text2Bin(String input) {
-        int iCM = 0;
+        int iCM;
         int iC = 0;
         for (String strPat:strChars) {
             iCM = 0;
@@ -71,21 +71,8 @@ public class Text2Braille {
             }
         }
         return strOut;
-/*        String[] output = new String[input.toCharArray().length];
-        int intCount = 0;
-        for (int count = 0; count < strChars.length; count++) {
-            
-        }
-        for (char c:input.toCharArray()) {
-            for (int count = 0; count < strChars.length; count++) {
-                if (String.valueOf(c).toUpperCase().equals(strChars[count])) {
-                    output[intCount] = strCodes[count];
-                    intCount++;
-                }
-            }
-        }
-        return output;*/
     }
+    
     public char[][] bin2Braille(String[] bin) {
         char[][] dispCode = new char[3][bin.length * 2];
         int intCount = 0;
