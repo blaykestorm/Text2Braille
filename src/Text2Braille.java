@@ -9,8 +9,7 @@ public class Text2Braille {
     private int intBrailleChars;
 
     public Text2Braille(String strInput) {
-        intChars = strInput.length();
-        this.initialize("default");
+        this(strInput, "default");
     }
     public Text2Braille(String strInput, String encoding) {
         intChars = strInput.length();
@@ -20,16 +19,15 @@ public class Text2Braille {
         if (args.length == 0) {
             System.out.println("Please provide more arguments!");
         } else {
-            for (String str:args) {
-                Text2Braille ttb = new Text2Braille(str);
-                String[] code = ttb.text2Bin(args[0]);
-                char[][] dispCode = ttb.bin2Braille(code);
-                for (int count = 0; count < dispCode.length; count++) {
-                    for (int count2 = 0; count2 < dispCode[count].length; count2++) {
-                        System.out.print(dispCode[count][count2]);
-                    }
-                    System.out.print("\r\n");
+            String strCode = String.join(" ", args);
+            Text2Braille ttb = new Text2Braille(strCode);
+            String[] code = ttb.text2Bin(args[0]);
+            char[][] dispCode = ttb.bin2Braille(code);
+            for (int count = 0; count < dispCode.length; count++) {
+                for (int count2 = 0; count2 < dispCode[count].length; count2++) {
+                    System.out.print(dispCode[count][count2]);
                 }
+                System.out.print("\r\n");
             }
         }
     }
