@@ -13,7 +13,7 @@ public class Text2Braille {
     private int[][] intInds;
 
     public Text2Braille(String strInput) {
-        this(strInput, "C:\\Users\\alexh\\Desktop\\default.txt");
+        this(strInput, "C:\\Users\\alexh\\Desktop\\grade2.txt");
     }
     public Text2Braille(String strInput, String encoding) {
         intChars = strInput.length();
@@ -42,11 +42,23 @@ public class Text2Braille {
         return this.intBrailleChars;
     }
     public String[] text2Bin(String input) {
+        Pattern pnum = Pattern.compile("\\d+");
+        Matcher mnum = pnum.matcher(input);
+        while (mnum.find()) {
+            input = input.substring(0, mnum.start()) + "#" + input.substring(mnum.start());
+        }
+        mnum.reset();
+/*        pnum = Pattern.compile("[A-Z]+");
+        mnum = pnum.matcher(input);
+        while (mnum.find()) {
+            input = input.substring(0, mnum.start()) + "__%c__" + input.substring(mnum.start());
+        }*/
+
         int iCM;
         int iC = 0;
         for (String strPat:strChars) {
             // IF the pattern has a dash at the beginning AND is not length 1, then an .* is necessary!
-            if (strPat.length() != 1) {
+            if (strPat.length() != 1 && (strPat.charAt(0) == '-' || strPat.charAt(strPat.length()-1) == '-')) {
 
                 boolean logBeg = false;
                 boolean logEnd = false;
@@ -71,10 +83,15 @@ public class Text2Braille {
                 } else {
                     strPat = strPat + "\\s";
                 }
+            } else if (strPat.substring(1).equals("NUMBER")) {
+                strPat = "(#)";
+                strChars[iC] = "#";
+            } else if (strPat.substring(1).equals("CAPS")) {
+                strPat = "(__%C__)";
+                strChars[iC] = "__%C__";
             } else {
                 strPat = "(" + Pattern.quote(strPat) + ")";
             }
-
             iCM = 0;
             Pattern pat = Pattern.compile(strPat, Pattern.CASE_INSENSITIVE);
             Matcher mat = pat.matcher(input);
@@ -93,6 +110,7 @@ public class Text2Braille {
 
         int intSInd = 0;
         String[] strOut = new String[input.length()];
+        String[] strBraille = new String[input.length()];
         while (intSInd < input.length()) {
             boolean logFound = false;
             for (iC = 0; iC < intInds.length && !logFound; iC++) {
