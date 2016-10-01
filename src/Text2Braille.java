@@ -1,12 +1,16 @@
 package com.chickasaw.text2braille;
 import java.io.*;
 import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Text2Braille {
     private String[] strChars;
     private String[] strCodes;
     private Pair[] intChrLen;
     private int intChars;
     private int intBrailleChars;
+    private int[][] intInds;
 
     public Text2Braille(String strInput) {
         this(strInput, "default");
@@ -16,6 +20,16 @@ public class Text2Braille {
         this.initialize(encoding);
     }
     public static void main(String[] args) {
+        Pattern p = Pattern.compile("and");
+        Matcher m = p.matcher("hhhhand");
+        m.find();
+        int index = m.start();
+        System.out.println(index);
+        boolean b = m.matches();
+        String[] test = p.split("handandd");
+        for (String str:test) {
+            System.out.println(str);
+        }
         if (args.length == 0) {
             System.out.println("Please provide more arguments!");
         } else {
@@ -32,6 +46,25 @@ public class Text2Braille {
         }
     }
     public String[] text2Bin(String input) {
+        int iCM = 0;
+        int iC = 0;
+        for (String strPatt:strChars) {
+            iCM = 0;
+            Pattern pat = Pattern.compile(Pattern.quote(strPatt), Pattern.CASE_INSENSITIVE);
+            Matcher mat = pat.matcher(input);
+            while (mat.find()) {
+                iCM = iCM + 1;
+            }
+            mat.reset();
+            intInds[iC] = new int[iCM];
+            iCM = 0;
+            for (; iCM < intInds[iC].length; iCM++) {
+                mat.find();
+                intInds[iC][iCM] = mat.start();
+            }
+            iC = iC + 1;
+        }
+        
         String[] output = new String[input.toCharArray().length];
         int intCount = 0;
         for (int count = 0; count < strChars.length; count++) {
@@ -64,7 +97,7 @@ public class Text2Braille {
     public void initialize(String encoding) {
         String line = null;
         int intLines = 0;
-        try (BufferedReader inputStream = new BufferedReader(new FileReader(encoding + ".txt"))) {
+        try (BufferedReader inputStream = new BufferedReader(new FileReader("C:\\Users\\alexh\\Desktop\\" + encoding + ".txt"))) {
             while ((line = inputStream.readLine()) != null) {
                 intLines++;
             }
@@ -72,11 +105,12 @@ public class Text2Braille {
             System.out.println("SHIT!");
             System.exit(1);
         }
-        try (BufferedReader inputStream = new BufferedReader(new FileReader(encoding + ".txt"))) {
+        try (BufferedReader inputStream = new BufferedReader(new FileReader("C:\\Users\\alexh\\Desktop\\" + encoding + ".txt"))) {
             line = null;
             strChars = new String[intLines];
             strCodes = new String[intLines];
             intChrLen = new Pair[intLines];
+            intInds = new int[intLines][];
             int intCount = 0;
             while ((line = inputStream.readLine()) != null) {
                 strChars[intCount] = line.substring(0, line.indexOf(':', 1));
@@ -85,7 +119,7 @@ public class Text2Braille {
                 } else {
                     intChrLen[intCount] = new Pair(intCount, strChars[intCount].length());
                 }
-                strCodes[intCount] = line.substring(line.indexOf(':', 1) + 1, line.indexOf(';', 1));
+                strCodes[intCount] = line.substring(line.lastIndexOf(':') + 1, line.lastIndexOf(';'));
                 intCount++;
             }
         } catch (IOException x) {
@@ -102,5 +136,6 @@ public class Text2Braille {
             strChars[intCount] = strCharsCopy[index];
             strCodes[intCount] = strCodesCopy[index];
         }
+        // Now we have sorted versions of the characters and codes, based on LENGTH of phrases!
     }
 }
