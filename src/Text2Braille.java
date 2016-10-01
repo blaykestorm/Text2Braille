@@ -20,16 +20,6 @@ public class Text2Braille {
         this.initialize(encoding);
     }
     public static void main(String[] args) {
-        Pattern p = Pattern.compile("and");
-        Matcher m = p.matcher("hhhhand");
-        m.find();
-        int index = m.start();
-        System.out.println(index);
-        boolean b = m.matches();
-        String[] test = p.split("handandd");
-        for (String str:test) {
-            System.out.println(str);
-        }
         if (args.length == 0) {
             System.out.println("Please provide more arguments!");
         } else {
@@ -48,9 +38,9 @@ public class Text2Braille {
     public String[] text2Bin(String input) {
         int iCM = 0;
         int iC = 0;
-        for (String strPatt:strChars) {
+        for (String strPat:strChars) {
             iCM = 0;
-            Pattern pat = Pattern.compile(Pattern.quote(strPatt), Pattern.CASE_INSENSITIVE);
+            Pattern pat = Pattern.compile(Pattern.quote(strPat), Pattern.CASE_INSENSITIVE);
             Matcher mat = pat.matcher(input);
             while (mat.find()) {
                 iCM = iCM + 1;
@@ -64,8 +54,24 @@ public class Text2Braille {
             }
             iC = iC + 1;
         }
-        
-        String[] output = new String[input.toCharArray().length];
+
+        int intSInd = 0;
+        String[] strOut = new String[input.length()];
+        while (intSInd < input.length()) {
+            boolean logFound = false;
+            int codeInd = 0;
+            for (iC = 0; iC < intInds.length && !logFound; iC++) {
+                for (iCM = 0; iCM < intInds[iC].length; iCM++) {
+                    if (intInds[iC][iCM] == intSInd) {
+                        strOut[intSInd] = strCodes[iC];
+                        intSInd = intSInd + strChars[iC].length();
+                        logFound = true;
+                    }
+                }
+            }
+        }
+        return strOut;
+/*        String[] output = new String[input.toCharArray().length];
         int intCount = 0;
         for (int count = 0; count < strChars.length; count++) {
             
@@ -78,7 +84,7 @@ public class Text2Braille {
                 }
             }
         }
-        return output;
+        return output;*/
     }
     public char[][] bin2Braille(String[] bin) {
         char[][] dispCode = new char[3][bin.length * 2];
