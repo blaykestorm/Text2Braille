@@ -13,7 +13,7 @@ public class Text2Braille {
     private int[][] intInds;
 
     public Text2Braille(String strInput) {
-        this(strInput, "default");
+        this(strInput, "C:\\Users\\alexh\\Desktop\\default.txt");
     }
     public Text2Braille(String strInput, String encoding) {
         intChars = strInput.length();
@@ -35,12 +35,48 @@ public class Text2Braille {
             }
         }
     }
+    public int getIntChars() {
+        return this.intChars;
+    }
+    public int getIntBrailleChars() {
+        return this.intBrailleChars;
+    }
     public String[] text2Bin(String input) {
         int iCM;
         int iC = 0;
         for (String strPat:strChars) {
+            // IF the pattern has a dash at the beginning AND is not length 1, then an .* is necessary!
+            if (strPat.length() != 1) {
+
+                boolean logBeg = false;
+                boolean logEnd = false;
+                if (strPat.charAt(0) == '-') {
+                    strPat = strPat.substring(1);
+                    strChars[iC] = strChars[iC].substring(1);
+                    logBeg = true;
+                }
+                if (strPat.charAt(strPat.length() - 1) == '-') {
+                    strPat = strPat.substring(0, strPat.length() - 1);
+                    strChars[iC] = strChars[iC].substring(0, strChars[iC].length() - 1);
+                    logEnd = true;
+                }
+                strPat = "(" + Pattern.quote(strPat) + ")";
+                if (logBeg) {
+                    strPat = ".*" + strPat;
+                } else {
+                    strPat = "\\s" + strPat;
+                }
+                if (logEnd) {
+                    strPat = strPat + ".*";
+                } else {
+                    strPat = strPat + "\\s";
+                }
+            } else {
+                strPat = "(" + Pattern.quote(strPat) + ")";
+            }
+
             iCM = 0;
-            Pattern pat = Pattern.compile(Pattern.quote(strPat), Pattern.CASE_INSENSITIVE);
+            Pattern pat = Pattern.compile(strPat, Pattern.CASE_INSENSITIVE);
             Matcher mat = pat.matcher(input);
             while (mat.find()) {
                 iCM = iCM + 1;
@@ -50,7 +86,7 @@ public class Text2Braille {
             iCM = 0;
             for (; iCM < intInds[iC].length; iCM++) {
                 mat.find();
-                intInds[iC][iCM] = mat.start();
+                intInds[iC][iCM] = mat.start(1);
             }
             iC = iC + 1;
         }
@@ -59,7 +95,6 @@ public class Text2Braille {
         String[] strOut = new String[input.length()];
         while (intSInd < input.length()) {
             boolean logFound = false;
-            int codeInd = 0;
             for (iC = 0; iC < intInds.length && !logFound; iC++) {
                 for (iCM = 0; iCM < intInds[iC].length; iCM++) {
                     if (intInds[iC][iCM] == intSInd) {
@@ -70,9 +105,24 @@ public class Text2Braille {
                 }
             }
         }
-        return strOut;
+        String[] output;
+        int cNotNull = 0;
+        for (String str:strOut) {
+            if (str != null) {
+                cNotNull++;
+            }
+        }
+        iC = 0;
+        output = new String[cNotNull];
+        for (String str:strOut) {
+            if (str != null) {
+                output[iC] = str;
+                iC++;
+            }
+        }
+        return output;
     }
-    
+
     public char[][] bin2Braille(String[] bin) {
         char[][] dispCode = new char[3][bin.length * 2];
         int intCount = 0;
@@ -88,17 +138,17 @@ public class Text2Braille {
         return dispCode;
     }
     public void initialize(String encoding) {
-        String line = null;
+        String line;
         int intLines = 0;
-        try (BufferedReader inputStream = new BufferedReader(new FileReader("C:\\Users\\alexh\\Desktop\\" + encoding + ".txt"))) {
+        try (BufferedReader inputStream = new BufferedReader(new FileReader(encoding))) {
             while ((line = inputStream.readLine()) != null) {
                 intLines++;
             }
         } catch (IOException x) {
-            System.out.println("SHIT!");
+            System.out.println("Unable to open Braille Library");
             System.exit(1);
         }
-        try (BufferedReader inputStream = new BufferedReader(new FileReader("C:\\Users\\alexh\\Desktop\\" + encoding + ".txt"))) {
+        try (BufferedReader inputStream = new BufferedReader(new FileReader(encoding))) {
             line = null;
             strChars = new String[intLines];
             strCodes = new String[intLines];
@@ -107,7 +157,7 @@ public class Text2Braille {
             int intCount = 0;
             while ((line = inputStream.readLine()) != null) {
                 strChars[intCount] = line.substring(0, line.indexOf(':', 1));
-                if (!strChars[intCount].substring(0, 1).equals("%")) {
+                if (strChars[intCount].substring(0, 1).equals("%")) {
                     intChrLen[intCount] = new Pair(intCount, 0);
                 } else {
                     intChrLen[intCount] = new Pair(intCount, strChars[intCount].length());
@@ -116,19 +166,22 @@ public class Text2Braille {
                 intCount++;
             }
         } catch (IOException x) {
-            System.out.println("SHIT!");
+            System.out.println("Unable to open Braille Library");
             System.exit(1);
         }
         Arrays.sort(intChrLen);
-        String[] strCharsCopy = strChars;
-        String[] strCodesCopy = strCodes;
+        String[] strCharsCopy = new String[strChars.length];
+        String[] strCodesCopy = new String[strCodes.length];
         int index = 0;
         int intCount = 0;
         for (Pair ind:intChrLen) {
             index = ind.getInd();
-            strChars[intCount] = strCharsCopy[index];
-            strCodes[intCount] = strCodesCopy[index];
+            strCharsCopy[intCount] = strChars[index];
+            strCodesCopy[intCount] = strCodes[index];
+            intCount++;
         }
+        strChars = strCharsCopy;
+        strCodes = strCodesCopy;
         // Now we have sorted versions of the characters and codes, based on LENGTH of phrases!
     }
 }
